@@ -7,7 +7,7 @@ module.exports = {
     for(let i = 0 ; i < 100; i++)
     {
       data.push({
-        id: i + 2,
+        id: i,
         email: faker.internet.email(),
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),

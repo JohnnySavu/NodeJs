@@ -1,12 +1,12 @@
 //sequelize.org documentatie
 
 const { response } = require('express');
-const db = require('../models')
+const db = require('../../models')
 
-module.exports.getAllUsers = async (req, res) =>{
+module.exports.getAllPosts = async (req, res) =>{
     try{
-        const allUsers = await db.User.findAll();
-        res.send(allUsers);
+        const allPosts = await db.Post.findAll();
+        res.send(allPosts);
     }catch(err)
     {
         console.error('something went wrong')
@@ -16,17 +16,25 @@ module.exports.getAllUsers = async (req, res) =>{
     }    
 }
 //returnezi userul 
-module.exports.getUserById = async (req, res) =>{
-    const id = req.params.id
-
+module.exports.getPostById = async (req, res) =>{
+    const id = parseInt(req.params.id)
+    //sequelize associations -> advnaced assosiation concept -> foo.belongsto(bar)
     try{
-        const user = await db.User.findOne({where : {id : id}})
+        const pst = await db.Post.findByPk(id)
+        console.log(pst)
+        const author = await pst.getUser();
+        
+        const response = {
+            ...pst.dataValues,
+            author,
+        }
+
         if (user === null){
             res.status(404);
             res.send("user not found");
         }
         res.status(200)
-        res.send(user)
+        res.send(response)
     }catch(error)
     {
         console.error(error)
@@ -37,24 +45,27 @@ module.exports.getUserById = async (req, res) =>{
 
 }
 
-module.exports.createUser = async (req, res) =>{
+module.exports.createPost = async (req, res) =>{
+    const userId = req.params.id;
+    
     const {
-        id,
-        email,
-        firstName,
-        lastName,
+        title,
+        body
     } = req.body
 
     try{
-    const newUser = await db.User.create({
-        email:email,
-        firstName:firstName,
-        lastName:lastName,
-        createdAt:new Date(),
-        updatedAt:new Date()
-    })
-    console.log(newUser)
-    res.send(newUser)
+        const user = await db.User.findByPk(userId)
+
+        const newPost = {
+            title,
+            body,
+        }
+
+        const createdPost = await user.createPost(newPost)
+        console.log("cratedPost", createdPost)
+
+        res.status(201).send(newPost);
+
     }catch(err){
         console.error(err)
         res.send({
@@ -64,7 +75,7 @@ module.exports.createUser = async (req, res) =>{
 }
 
 //returnezi update ul 
-module.exports.updateUser = async (req, res) =>{
+module.exports.updatePost = async (req, res) =>{
     const id = req.params.id
     const {
         email,
@@ -73,7 +84,7 @@ module.exports.updateUser = async (req, res) =>{
     } = req.body
 
     try{
-        const updateUser = await db.User.update({
+        const updateUser = await db.Post.update({
         email:email,
         firstName:firstName,
         lastName:lastName,
@@ -90,7 +101,7 @@ module.exports.updateUser = async (req, res) =>{
     }
 
     try{
-        const user = await db.User.findOne({where : {id : id}})
+        const user = await db.Post.findOne({where : {id : id}})
         if (user === null){
             res.status(404);
             res.send("user not found");
@@ -107,10 +118,10 @@ module.exports.updateUser = async (req, res) =>{
 }
 
 //dai 202
-module.exports.deleteUser = async (req, res) =>{
+module.exports.deletePost = async (req, res) =>{
     const id = req.params.id
     try{
-        const deleteUser = await db.User.destroy({
+        const deleteUser = await db.Post.destroy({
             where : {
                 id:id
             }

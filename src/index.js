@@ -6,7 +6,9 @@ const port = 3001
 const MY_SECRET_KEY = "SUPERSECRETDISCRET"
 const bodyParser = require("body-parser")
 
-const {getAllUsers, getUserById, createUser, updateUser, deleteUser} = require("./users")
+const {getAllUsers, getUserById, createUser, updateUser, deleteUser} = require("./controllers/users")
+const {getAllPosts, getPostById, createPost, updatePost, deletePost} = require("./controllers/posts")
+
 
 //de pus autorizare in middleware 
 app.use(bodyParser.json());
@@ -77,6 +79,13 @@ app.get("/users/:id", getUserById)
 app.post("/users", createUser);
 app.put("/users/:id", updateUser);
 app.delete("/users/:id", deleteUser)
+
+
+app.get("/posts", getAllPosts );
+app.get("/posts/:id", getPostById)
+app.post("/posts", createPost);
+app.put("/posts/:id", updatePost);
+app.delete("/posts/:id", deletePost)
 
 
 app.listen(port, () => {
